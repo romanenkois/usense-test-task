@@ -43,7 +43,10 @@ interface PersistedEntry<T> {
 @Injectable({ providedIn: 'root' })
 export class FsqService {
   private readonly _api = inject(FsqApiService);
-  private readonly _cache = new Map<string, WritableSignal<ItemState<unknown>>>();
+  private readonly _cache = new Map<
+    string,
+    WritableSignal<ItemState<unknown>>
+  >();
   private readonly _inFlight = new Set<string>();
   private readonly _placeFields = new Map<string, Set<string>>();
 
@@ -76,15 +79,25 @@ export class FsqService {
     if (!this._cache.has(key)) {
       const persisted = this._readPersisted<T>(key);
       const initial: ItemState<T> = persisted
-        ? { data: persisted.data, status: { status: Status.Resolved }, addedAt: persisted.addedAt }
+        ? {
+            data: persisted.data,
+            status: { status: Status.Resolved },
+            addedAt: persisted.addedAt,
+          }
         : { data: null, status: { status: Status.Idle }, addedAt: null };
-      this._cache.set(key, signal<ItemState<unknown>>(initial as ItemState<unknown>));
+      this._cache.set(
+        key,
+        signal<ItemState<unknown>>(initial as ItemState<unknown>),
+      );
     }
     return this._cache.get(key)! as WritableSignal<ItemState<T>>;
   }
 
   private _isFresh(addedAt: Date | null): boolean {
-    return addedAt !== null && Date.now() - addedAt.getTime() < environment.cacheTtlMs;
+    return (
+      addedAt !== null &&
+      Date.now() - addedAt.getTime() < environment.cacheTtlMs
+    );
   }
 
   private _placeKey(fsqPlaceId: string): string {
@@ -109,7 +122,10 @@ export class FsqService {
     const known = this._getKnownFields(fsqPlaceId);
     for (const f of fields) known.add(f);
     try {
-      localStorage.setItem(PLACE_FIELDS_PREFIX + fsqPlaceId, JSON.stringify([...known]));
+      localStorage.setItem(
+        PLACE_FIELDS_PREFIX + fsqPlaceId,
+        JSON.stringify([...known]),
+      );
     } catch {
       // ignore
     }
@@ -126,7 +142,10 @@ export class FsqService {
     this._addKnownFields(place.fsq_place_id, fields);
   }
 
-  private _load<T>(key: string, fetch: () => Observable<T>): Signal<ItemState<T>> {
+  private _load<T>(
+    key: string,
+    fetch: () => Observable<T>,
+  ): Signal<ItemState<T>> {
     const sig = this._getSignal<T>(key);
     const current = sig();
 
@@ -169,15 +188,22 @@ export class FsqService {
     return sig;
   }
 
-  searchPlaces(params: PlaceSearchParams): Signal<ItemState<PlaceSearchResponse>> {
+  searchPlaces(
+    params: PlaceSearchParams,
+  ): Signal<ItemState<PlaceSearchResponse>> {
     const effectiveParams = environment.fsq.premium
       ? params
       : { ...params, fields: stripPremiumFields(params.fields) };
     const key = `search:${buildCacheKey(effectiveParams)}`;
-    const fields = effectiveParams.fields ? effectiveParams.fields.split(',') : [];
+    const fields = effectiveParams.fields
+      ? effectiveParams.fields.split(',')
+      : [];
     return this._load(key, () =>
       this._api
-        .get<FsqPlaceSearchResponseIncomingDTO>('/search', toQueryParams(effectiveParams))
+        .get<FsqPlaceSearchResponseIncomingDTO>(
+          '/search',
+          toQueryParams(effectiveParams),
+        )
         .pipe(
           map(mapFsqPlaceSearchResponseToPlaceSearchResponse),
           tap((res) => {
@@ -187,17 +213,27 @@ export class FsqService {
     );
   }
 
-  getPlaceDetails(fsqPlaceId: string, fields?: string): Signal<ItemState<Place>> {
-    const effectiveFields = environment.fsq.premium ? fields : stripPremiumFields(fields);
+  getPlaceDetails(
+    fsqPlaceId: string,
+    fields?: string,
+  ): Signal<ItemState<Place>> {
+    const effectiveFields = environment.fsq.premium
+      ? fields
+      : stripPremiumFields(fields);
     const key = this._placeKey(fsqPlaceId);
     const sig = this._getSignal<Place>(key);
     const current = sig();
 
     const requested = effectiveFields ? effectiveFields.split(',') : [];
     const known = this._getKnownFields(fsqPlaceId);
-    const hasAllRequested = requested.length === 0 || requested.every((f) => known.has(f));
+    const hasAllRequested =
+      requested.length === 0 || requested.every((f) => known.has(f));
 
-    if (this._isFresh(current.addedAt) && current.data !== null && hasAllRequested) {
+    if (
+      this._isFresh(current.addedAt) &&
+      current.data !== null &&
+      hasAllRequested
+    ) {
       return sig;
     }
 
@@ -240,32 +276,36 @@ export class FsqService {
     return sig;
   }
 
-  getPlacePhotos(fsqPlaceId: string, params?: PlacePhotosParams): Signal<ItemState<PlacePhoto[]>> {
+  getPlacePhotos(
+    fsqPlaceId: string,
+    params?: PlacePhotosParams,
+  ): Signal<ItemState<PlacePhoto[]>> {
     const key = `photos:${fsqPlaceId}${params ? `:${buildCacheKey(params)}` : ''}`;
     return this._load(key, () => {
       if (!environment.fsq.premium) {
         return of(mockPhotos(fsqPlaceId, params?.limit ?? 8));
       }
       return this._api
-        .get<FsqPhotoIncomingDTO[]>(
-          `/${fsqPlaceId}/photos`,
-          params ? toQueryParams(params) : undefined,
-        )
+        .get<
+          FsqPhotoIncomingDTO[]
+        >(`/${fsqPlaceId}/photos`, params ? toQueryParams(params) : undefined)
         .pipe(map((photos) => photos.map(mapFsqPhotoToPlacePhoto)));
     });
   }
 
-  getPlaceTips(fsqPlaceId: string, params?: PlaceTipsParams): Signal<ItemState<PlaceTip[]>> {
+  getPlaceTips(
+    fsqPlaceId: string,
+    params?: PlaceTipsParams,
+  ): Signal<ItemState<PlaceTip[]>> {
     const key = `tips:${fsqPlaceId}${params ? `:${buildCacheKey(params)}` : ''}`;
     return this._load(key, () => {
       if (!environment.fsq.premium) {
         return of(mockTips(fsqPlaceId, params?.limit ?? 5));
       }
       return this._api
-        .get<FsqTipIncomingDTO[]>(
-          `/${fsqPlaceId}/tips`,
-          params ? toQueryParams(params) : undefined,
-        )
+        .get<
+          FsqTipIncomingDTO[]
+        >(`/${fsqPlaceId}/tips`, params ? toQueryParams(params) : undefined)
         .pipe(map((tips) => tips.map(mapFsqTipToPlaceTip)));
     });
   }

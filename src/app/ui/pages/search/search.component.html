@@ -42,11 +42,7 @@
           </label>
 
           <label class="flex items-center gap-2 text-sm self-end pb-1">
-            <input
-              formControlName="open_now"
-              type="checkbox"
-              class="w-4 h-4"
-            />
+            <input formControlName="open_now" type="checkbox" class="w-4 h-4" />
             Open now
           </label>
 
@@ -83,9 +79,13 @@
   } @else if (isError()) {
     <p class="text-red-600" role="alert">{{ errorMessage() }}</p>
   } @else if (isEmpty()) {
-    <p class="text-gray-500">No places found. Try a different keyword or location.</p>
+    <p class="text-gray-500">
+      No places found. Try a different keyword or location.
+    </p>
   } @else if (places().length) {
-    <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 list-none p-0">
+    <ul
+      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 list-none p-0"
+    >
       @for (place of places(); track place.fsq_place_id) {
         <li>
           <app-place-card
@@ -97,6 +97,8 @@
       }
     </ul>
   } @else {
-    <p class="text-gray-400">Enter a keyword or location to search for places.</p>
+    <p class="text-gray-400">
+      Enter a keyword or location to search for places.
+    </p>
   }
 </section>

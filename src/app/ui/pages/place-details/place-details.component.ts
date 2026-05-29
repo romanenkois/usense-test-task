@@ -26,9 +26,8 @@ export class PlaceDetailsComponent implements AfterViewInit {
   private readonly _wishlist = inject(WishlistService);
 
   private readonly _id = this._route.snapshot.paramMap.get('id')!;
-  private readonly _state = this._router.lastSuccessfulNavigation()?.extras.state as
-    | { returnUrl?: string; scrollY?: number }
-    | undefined;
+  private readonly _state = this._router.lastSuccessfulNavigation()?.extras
+    .state as { returnUrl?: string; scrollY?: number } | undefined;
 
   readonly detailsSig = this._fsq.getPlaceDetails(
     this._id,
@@ -41,8 +40,12 @@ export class PlaceDetailsComponent implements AfterViewInit {
   readonly photos = computed(() => this.photosSig().data ?? []);
   readonly tips = computed(() => this.tipsSig().data ?? []);
 
-  readonly isLoading = computed(() => this.detailsSig().status.status === Status.Loading);
-  readonly isError = computed(() => this.detailsSig().status.status === Status.Error);
+  readonly isLoading = computed(
+    () => this.detailsSig().status.status === Status.Loading,
+  );
+  readonly isError = computed(
+    () => this.detailsSig().status.status === Status.Error,
+  );
   readonly errorMessage = computed(() => {
     const s = this.detailsSig().status;
     return s.status === Status.Error ? s.errorMessage : null;
@@ -50,11 +53,15 @@ export class PlaceDetailsComponent implements AfterViewInit {
 
   readonly inWishlist = computed(() => this._wishlist.isAdded(this._id));
 
-  readonly category = computed(() => this.place()?.categories?.[0]?.name ?? null);
+  readonly category = computed(
+    () => this.place()?.categories?.[0]?.name ?? null,
+  );
   readonly address = computed(() => {
     const loc = this.place()?.location;
     if (!loc) return null;
-    return [loc.address, loc.locality, loc.region, loc.country].filter(Boolean).join(', ');
+    return [loc.address, loc.locality, loc.region, loc.country]
+      .filter(Boolean)
+      .join(', ');
   });
 
   readonly priceLabel = computed(() => {

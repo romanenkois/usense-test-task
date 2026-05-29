@@ -1,4 +1,10 @@
-import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  input,
+  signal,
+} from '@angular/core';
 import { NgOptimizedImage } from '@angular/common';
 
 import type { PlacePhoto } from '@models';
@@ -37,7 +43,9 @@ import { getPhotoUrl } from '@utils';
             >
               ›
             </button>
-            <span class="absolute bottom-2 right-2 bg-black/50 text-white text-xs rounded px-1.5 py-0.5">
+            <span
+              class="absolute bottom-2 right-2 bg-black/50 text-white text-xs rounded px-1.5 py-0.5"
+            >
               {{ index() + 1 }} / {{ photos().length }}
             </span>
           }

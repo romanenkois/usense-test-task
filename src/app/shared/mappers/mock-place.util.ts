@@ -21,7 +21,9 @@ function _hash(seed: string): number {
   return h;
 }
 
-export function stripPremiumFields(fields: string | undefined): string | undefined {
+export function stripPremiumFields(
+  fields: string | undefined,
+): string | undefined {
   if (!fields) return fields;
   const filtered = fields
     .split(',')

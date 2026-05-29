@@ -41,19 +41,26 @@ export class SearchComponent implements OnInit, OnDestroy {
     max_price: [null as number | null],
   });
 
-  private readonly _resultSignal = signal<ReturnType<FsqService['searchPlaces']> | null>(null);
+  private readonly _resultSignal = signal<ReturnType<
+    FsqService['searchPlaces']
+  > | null>(null);
 
   readonly result = computed(() => this._resultSignal()?.() ?? null);
   readonly places = computed(() => this.result()?.data?.results ?? []);
-  readonly isLoading = computed(() => this.result()?.status.status === Status.Loading);
-  readonly isError = computed(() => this.result()?.status.status === Status.Error);
+  readonly isLoading = computed(
+    () => this.result()?.status.status === Status.Loading,
+  );
+  readonly isError = computed(
+    () => this.result()?.status.status === Status.Error,
+  );
   readonly errorMessage = computed(() => {
     const s = this.result()?.status;
     return s?.status === Status.Error ? s.errorMessage : null;
   });
   readonly isEmpty = computed(
     () =>
-      this.result()?.status.status === Status.Resolved && this.places().length === 0,
+      this.result()?.status.status === Status.Resolved &&
+      this.places().length === 0,
   );
 
   readonly currentUrl = computed(() => {
@@ -85,14 +92,16 @@ export class SearchComponent implements OnInit, OnDestroy {
     }
 
     this._subs.add(
-      this.form.valueChanges.pipe(debounceTime(400), distinctUntilChanged()).subscribe(() => {
-        this._syncQueryParams();
-        if (this._hasSearchInput()) {
-          this._search();
-        } else {
-          this._resultSignal.set(null);
-        }
-      }),
+      this.form.valueChanges
+        .pipe(debounceTime(400), distinctUntilChanged())
+        .subscribe(() => {
+          this._syncQueryParams();
+          if (this._hasSearchInput()) {
+            this._search();
+          } else {
+            this._resultSignal.set(null);
+          }
+        }),
     );
   }
 
@@ -111,7 +120,10 @@ export class SearchComponent implements OnInit, OnDestroy {
 
   private _buildParams(): PlaceSearchParams {
     const v = this.form.value;
-    const params: PlaceSearchParams = { sort: 'RELEVANCE', fields: 'fsq_place_id,name,categories,location,rating,photos,price' };
+    const params: PlaceSearchParams = {
+      sort: 'RELEVANCE',
+      fields: 'fsq_place_id,name,categories,location,rating,photos,price',
+    };
     if (v.query?.trim()) params.query = v.query.trim();
     if (v.near?.trim()) params.near = v.near.trim();
     if (v.radius) params.radius = v.radius;

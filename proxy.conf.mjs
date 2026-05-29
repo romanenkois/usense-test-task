@@ -2,7 +2,12 @@ import http2 from 'node:http2';
 
 const FSQ_ORIGIN = 'https://places-api.foursquare.com';
 const PREFIX = '/fsq-api';
-const FORWARDED_HEADERS = ['authorization', 'x-places-api-version', 'accept', 'accept-language'];
+const FORWARDED_HEADERS = [
+  'authorization',
+  'x-places-api-version',
+  'accept',
+  'accept-language',
+];
 
 let session = null;
 
@@ -29,7 +34,9 @@ function getSession() {
 }
 
 function buildHeaders(req) {
-  const path = req.url.startsWith(PREFIX) ? req.url.slice(PREFIX.length) || '/' : req.url;
+  const path = req.url.startsWith(PREFIX)
+    ? req.url.slice(PREFIX.length) || '/'
+    : req.url;
   const headers = {
     ':method': req.method,
     ':path': path,
@@ -92,7 +99,9 @@ const RETRYABLE_CODES = new Set([
 function isRetryable(err) {
   if (!err) return false;
   if (RETRYABLE_CODES.has(err.code)) return true;
-  return typeof err.message === 'string' && /stream close|goaway/i.test(err.message);
+  return (
+    typeof err.message === 'string' && /stream close|goaway/i.test(err.message)
+  );
 }
 
 async function forwardToFsq(req, res) {
@@ -104,12 +113,14 @@ async function forwardToFsq(req, res) {
     const second = await sendOnce(req, res);
     if (second.ok) return;
     if (!res.headersSent) res.writeHead(502, { 'content-type': 'text/plain' });
-    if (!res.writableEnded) res.end(`fsq proxy stream error: ${second.err?.message ?? 'unknown'}`);
+    if (!res.writableEnded)
+      res.end(`fsq proxy stream error: ${second.err?.message ?? 'unknown'}`);
     return;
   }
 
   if (!res.headersSent) res.writeHead(502, { 'content-type': 'text/plain' });
-  if (!res.writableEnded) res.end(`fsq proxy stream error: ${first.err?.message ?? 'unknown'}`);
+  if (!res.writableEnded)
+    res.end(`fsq proxy stream error: ${first.err?.message ?? 'unknown'}`);
 }
 
 export default {

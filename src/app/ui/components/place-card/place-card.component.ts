@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  input,
+  output,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NgOptimizedImage } from '@angular/common';
 
@@ -22,7 +29,9 @@ import { getPhotoUrl } from '@utils';
             [alt]="place().name"
           />
         } @else {
-          <div class="w-full h-40 bg-gray-100 flex items-center justify-center text-gray-400 text-sm">
+          <div
+            class="w-full h-40 bg-gray-100 flex items-center justify-center text-gray-400 text-sm"
+          >
             No photo
           </div>
         }
@@ -67,7 +76,11 @@ import { getPhotoUrl } from '@utils';
                 type="button"
                 class="text-xl leading-none"
                 (click)="toggleWishlist()"
-                [attr.aria-label]="(inWishlist() ? 'Remove ' : 'Add ') + place().name + ' to wishlist'"
+                [attr.aria-label]="
+                  (inWishlist() ? 'Remove ' : 'Add ') +
+                  place().name +
+                  ' to wishlist'
+                "
                 [attr.aria-pressed]="inWishlist()"
               >
                 {{ inWishlist() ? '♥' : '♡' }}
@@ -95,7 +108,9 @@ export class PlaceCardComponent {
     return getPhotoUrl(photos[0], 400, 200);
   });
 
-  readonly category = computed(() => this.place().categories?.[0]?.name ?? null);
+  readonly category = computed(
+    () => this.place().categories?.[0]?.name ?? null,
+  );
 
   readonly address = computed(() => {
     const loc = this.place().location;
@@ -103,7 +118,9 @@ export class PlaceCardComponent {
     return [loc.address, loc.locality, loc.region].filter(Boolean).join(', ');
   });
 
-  readonly inWishlist = computed(() => this._wishlist.isAdded(this.place().fsq_place_id));
+  readonly inWishlist = computed(() =>
+    this._wishlist.isAdded(this.place().fsq_place_id),
+  );
 
   readonly navState = computed(() => ({
     returnUrl: this.returnUrl(),

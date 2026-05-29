@@ -37,7 +37,9 @@ export class WishlistService {
   }
 
   remove(fsqPlaceId: string): void {
-    this._places.update((list) => list.filter((p) => p.fsq_place_id !== fsqPlaceId));
+    this._places.update((list) =>
+      list.filter((p) => p.fsq_place_id !== fsqPlaceId),
+    );
   }
 
   isAdded(fsqPlaceId: string): boolean {

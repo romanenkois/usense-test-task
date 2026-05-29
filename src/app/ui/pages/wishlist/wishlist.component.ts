@@ -14,7 +14,9 @@ import { PlaceCardComponent } from '../../components/place-card/place-card.compo
       @if (places().length === 0) {
         <p class="text-gray-500">No saved places yet.</p>
       } @else {
-        <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 list-none p-0">
+        <ul
+          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 list-none p-0"
+        >
           @for (place of places(); track place.fsq_place_id) {
             <li>
               <app-place-card

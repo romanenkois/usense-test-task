@@ -5,12 +5,16 @@ export const routes: Routes = [
   {
     path: 'search',
     loadComponent: () =>
-      import('./ui/pages/search/search.component').then((m) => m.SearchComponent),
+      import('./ui/pages/search/search.component').then(
+        (m) => m.SearchComponent,
+      ),
   },
   {
     path: 'wishlist',
     loadComponent: () =>
-      import('./ui/pages/wishlist/wishlist.component').then((m) => m.WishlistComponent),
+      import('./ui/pages/wishlist/wishlist.component').then(
+        (m) => m.WishlistComponent,
+      ),
   },
   {
     path: 'places/:id',

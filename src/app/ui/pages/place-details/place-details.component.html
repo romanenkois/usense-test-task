@@ -15,7 +15,6 @@
     <p class="text-red-600" role="alert">{{ errorMessage() }}</p>
   } @else if (place()) {
     <div class="flex flex-col gap-6">
-
       @if (photos().length) {
         <app-photo-gallery [photos]="photos()" />
       }
@@ -27,7 +26,11 @@
             type="button"
             class="text-2xl leading-none shrink-0"
             (click)="toggleWishlist()"
-            [attr.aria-label]="(inWishlist() ? 'Remove ' : 'Save ') + place()!.name + ' to wishlist'"
+            [attr.aria-label]="
+              (inWishlist() ? 'Remove ' : 'Save ') +
+              place()!.name +
+              ' to wishlist'
+            "
             [attr.aria-pressed]="inWishlist()"
           >
             {{ inWishlist() ? '♥' : '♡' }}
@@ -50,7 +53,11 @@
             <span>{{ priceLabel() }}</span>
           }
           @if (place()!.hours?.open_now !== undefined) {
-            <span [class]="place()!.hours!.open_now ? 'text-green-600' : 'text-red-600'">
+            <span
+              [class]="
+                place()!.hours!.open_now ? 'text-green-600' : 'text-red-600'
+              "
+            >
               {{ place()!.hours!.open_now ? 'Open now' : 'Closed' }}
             </span>
           }
@@ -66,13 +73,20 @@
 
         @if (place()!.tel) {
           <p class="text-sm">
-            <a [href]="'tel:' + place()!.tel" class="text-blue-600 underline">{{ place()!.tel }}</a>
+            <a [href]="'tel:' + place()!.tel" class="text-blue-600 underline">{{
+              place()!.tel
+            }}</a>
           </p>
         }
 
         @if (place()!.website) {
           <p class="text-sm">
-            <a [href]="place()!.website" target="_blank" rel="noopener" class="text-blue-600 underline">
+            <a
+              [href]="place()!.website"
+              target="_blank"
+              rel="noopener"
+              class="text-blue-600 underline"
+            >
               Website
             </a>
           </p>
@@ -86,13 +100,14 @@
             @for (tip of tips(); track tip.created_at) {
               <li class="border border-gray-200 rounded p-3 text-sm">
                 <p>{{ tip.text }}</p>
-                <p class="text-gray-400 text-xs mt-1">{{ tip.created_at | slice: 0 : 10 }}</p>
+                <p class="text-gray-400 text-xs mt-1">
+                  {{ tip.created_at | slice: 0 : 10 }}
+                </p>
               </li>
             }
           </ul>
         </div>
       }
-
     </div>
   }
 </section>
