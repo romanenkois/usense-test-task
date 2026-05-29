@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import type { Signal, WritableSignal } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { FsqApiService } from '@api';
@@ -25,6 +25,9 @@ import {
   mapFsqPlaceToPlace,
   mapFsqPhotoToPlacePhoto,
   mapFsqTipToPlaceTip,
+  mockPhotos,
+  mockTips,
+  stripPremiumFields,
 } from '@mappers';
 import { buildCacheKey, toQueryParams } from '@utils';
 import { environment } from '@env';
@@ -75,44 +78,57 @@ export class FsqService {
   }
 
   searchPlaces(params: PlaceSearchParams): Signal<ItemState<PlaceSearchResponse>> {
-    const key = `search:${buildCacheKey(params)}`;
+    const effectiveParams = environment.fsq.premium
+      ? params
+      : { ...params, fields: stripPremiumFields(params.fields) };
+    const key = `search:${buildCacheKey(effectiveParams)}`;
     return this._load(key, () =>
       this._api
-        .get<FsqPlaceSearchResponseIncomingDTO>('/search', toQueryParams(params))
+        .get<FsqPlaceSearchResponseIncomingDTO>('/search', toQueryParams(effectiveParams))
         .pipe(map(mapFsqPlaceSearchResponseToPlaceSearchResponse)),
     );
   }
 
   getPlaceDetails(fsqPlaceId: string, fields?: string): Signal<ItemState<Place>> {
-    const key = `place:${fsqPlaceId}${fields ? `:${fields}` : ''}`;
+    const effectiveFields = environment.fsq.premium ? fields : stripPremiumFields(fields);
+    const key = `place:${fsqPlaceId}${effectiveFields ? `:${effectiveFields}` : ''}`;
     return this._load(key, () =>
       this._api
-        .get<FsqPlaceIncomingDTO>(`/${fsqPlaceId}`, fields ? { fields } : undefined)
+        .get<FsqPlaceIncomingDTO>(
+          `/${fsqPlaceId}`,
+          effectiveFields ? { fields: effectiveFields } : undefined,
+        )
         .pipe(map(mapFsqPlaceToPlace)),
     );
   }
 
   getPlacePhotos(fsqPlaceId: string, params?: PlacePhotosParams): Signal<ItemState<PlacePhoto[]>> {
     const key = `photos:${fsqPlaceId}${params ? `:${buildCacheKey(params)}` : ''}`;
-    return this._load(key, () =>
-      this._api
+    return this._load(key, () => {
+      if (!environment.fsq.premium) {
+        return of(mockPhotos(fsqPlaceId, params?.limit ?? 8));
+      }
+      return this._api
         .get<FsqPhotoIncomingDTO[]>(
           `/${fsqPlaceId}/photos`,
           params ? toQueryParams(params) : undefined,
         )
-        .pipe(map((photos) => photos.map(mapFsqPhotoToPlacePhoto))),
-    );
+        .pipe(map((photos) => photos.map(mapFsqPhotoToPlacePhoto)));
+    });
   }
 
   getPlaceTips(fsqPlaceId: string, params?: PlaceTipsParams): Signal<ItemState<PlaceTip[]>> {
     const key = `tips:${fsqPlaceId}${params ? `:${buildCacheKey(params)}` : ''}`;
-    return this._load(key, () =>
-      this._api
+    return this._load(key, () => {
+      if (!environment.fsq.premium) {
+        return of(mockTips(fsqPlaceId, params?.limit ?? 5));
+      }
+      return this._api
         .get<FsqTipIncomingDTO[]>(
           `/${fsqPlaceId}/tips`,
           params ? toQueryParams(params) : undefined,
         )
-        .pipe(map((tips) => tips.map(mapFsqTipToPlaceTip))),
-    );
+        .pipe(map((tips) => tips.map(mapFsqTipToPlaceTip)));
+    });
   }
 }

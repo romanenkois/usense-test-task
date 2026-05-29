@@ -13,7 +13,7 @@ export const fsqAuthInterceptor: HttpInterceptorFn = (req, next) => {
   return next(
     req.clone({
       setHeaders: {
-        Authorization: apiKey,
+        Authorization: `Bearer ${apiKey}`,
         'X-Places-Api-Version': environment.fsq.apiVersion,
       },
     }),

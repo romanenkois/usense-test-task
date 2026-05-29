@@ -8,8 +8,8 @@ Base URL: `https://places-api.foursquare.com/places/`
 
 | Header                 | Value            |
 | ---------------------- | ---------------- |
-| `X-Places-Api-Version` | `2025-06-17`     |
-| `Authorization`        | `<your API key>` |
+| `X-Places-Api-Version` | `2025-06-17`            |
+| `Authorization`        | `Bearer <service-key>`  |
 
 ---
 
