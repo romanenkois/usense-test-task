@@ -1,0 +1,98 @@
+<section class="flex flex-col gap-6">
+  <div>
+    <button
+      type="button"
+      class="text-sm text-blue-600 underline"
+      (click)="goBack()"
+    >
+      ← Back to search
+    </button>
+  </div>
+
+  @if (isLoading()) {
+    <p class="text-gray-500" role="status" aria-live="polite">Loading…</p>
+  } @else if (isError()) {
+    <p class="text-red-600" role="alert">{{ errorMessage() }}</p>
+  } @else if (place()) {
+    <div class="flex flex-col gap-6">
+
+      @if (photos().length) {
+        <app-photo-gallery [photos]="photos()" />
+      }
+
+      <div class="flex flex-col gap-2">
+        <div class="flex items-start justify-between gap-4">
+          <h1 class="text-2xl font-bold">{{ place()!.name }}</h1>
+          <button
+            type="button"
+            class="text-2xl leading-none shrink-0"
+            (click)="toggleWishlist()"
+            [attr.aria-label]="(inWishlist() ? 'Remove ' : 'Save ') + place()!.name + ' to wishlist'"
+            [attr.aria-pressed]="inWishlist()"
+          >
+            {{ inWishlist() ? '♥' : '♡' }}
+          </button>
+        </div>
+
+        @if (category()) {
+          <p class="text-gray-600">{{ category() }}</p>
+        }
+
+        @if (address()) {
+          <p class="text-gray-600">{{ address() }}</p>
+        }
+
+        <div class="flex items-center gap-4 text-sm">
+          @if (place()!.rating) {
+            <span>★ {{ place()!.rating }}</span>
+          }
+          @if (priceLabel()) {
+            <span>{{ priceLabel() }}</span>
+          }
+          @if (place()!.hours?.open_now !== undefined) {
+            <span [class]="place()!.hours!.open_now ? 'text-green-600' : 'text-red-600'">
+              {{ place()!.hours!.open_now ? 'Open now' : 'Closed' }}
+            </span>
+          }
+        </div>
+
+        @if (place()!.hours?.display) {
+          <p class="text-sm text-gray-500">{{ place()!.hours!.display }}</p>
+        }
+
+        @if (place()!.description) {
+          <p class="text-gray-700">{{ place()!.description }}</p>
+        }
+
+        @if (place()!.tel) {
+          <p class="text-sm">
+            <a [href]="'tel:' + place()!.tel" class="text-blue-600 underline">{{ place()!.tel }}</a>
+          </p>
+        }
+
+        @if (place()!.website) {
+          <p class="text-sm">
+            <a [href]="place()!.website" target="_blank" rel="noopener" class="text-blue-600 underline">
+              Website
+            </a>
+          </p>
+        }
+      </div>
+
+      @if (tips().length) {
+        <div class="flex flex-col gap-3">
+          <h2 class="text-lg font-semibold">Tips &amp; Reviews</h2>
+          <ul class="flex flex-col gap-2 list-none p-0">
+            @for (tip of tips(); track tip.created_at) {
+              <li class="border border-gray-200 rounded p-3 text-sm">
+                <p>{{ tip.text }}</p>
+                <p class="text-gray-400 text-xs mt-1">{{ tip.created_at | slice: 0 : 10 }}</p>
+              </li>
+            }
+          </ul>
+        </div>
+      }
+
+    </div>
+  }
+</section>

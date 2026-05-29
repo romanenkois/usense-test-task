@@ -1,0 +1,102 @@
+<section class="flex flex-col gap-4">
+  <form [formGroup]="form" class="flex flex-col gap-3">
+    <div class="flex gap-2">
+      <input
+        formControlName="query"
+        type="search"
+        placeholder="Keyword (e.g. coffee, museum)"
+        class="border border-gray-300 rounded px-3 py-2 flex-1"
+        aria-label="Search keyword"
+      />
+      <input
+        formControlName="near"
+        type="text"
+        placeholder="Location (e.g. Kyiv)"
+        class="border border-gray-300 rounded px-3 py-2 flex-1"
+        aria-label="Location"
+      />
+    </div>
+
+    <div>
+      <button
+        type="button"
+        class="text-sm text-blue-600 underline"
+        (click)="toggleFilters()"
+        [attr.aria-expanded]="filtersOpen()"
+        aria-controls="search-filters"
+      >
+        {{ filtersOpen() ? 'Hide filters' : 'Show filters' }}
+      </button>
+
+      @if (filtersOpen()) {
+        <div id="search-filters" class="flex flex-wrap gap-3 mt-2">
+          <label class="flex flex-col gap-1 text-sm">
+            Radius (m)
+            <input
+              formControlName="radius"
+              type="number"
+              min="0"
+              class="border border-gray-300 rounded px-2 py-1 w-28"
+              aria-label="Radius in meters"
+            />
+          </label>
+
+          <label class="flex items-center gap-2 text-sm self-end pb-1">
+            <input
+              formControlName="open_now"
+              type="checkbox"
+              class="w-4 h-4"
+            />
+            Open now
+          </label>
+
+          <label class="flex flex-col gap-1 text-sm">
+            Min price (1–4)
+            <input
+              formControlName="min_price"
+              type="number"
+              min="1"
+              max="4"
+              class="border border-gray-300 rounded px-2 py-1 w-20"
+              aria-label="Minimum price level"
+            />
+          </label>
+
+          <label class="flex flex-col gap-1 text-sm">
+            Max price (1–4)
+            <input
+              formControlName="max_price"
+              type="number"
+              min="1"
+              max="4"
+              class="border border-gray-300 rounded px-2 py-1 w-20"
+              aria-label="Maximum price level"
+            />
+          </label>
+        </div>
+      }
+    </div>
+  </form>
+
+  @if (isLoading()) {
+    <p class="text-gray-500" role="status" aria-live="polite">Loading…</p>
+  } @else if (isError()) {
+    <p class="text-red-600" role="alert">{{ errorMessage() }}</p>
+  } @else if (isEmpty()) {
+    <p class="text-gray-500">No places found. Try a different keyword or location.</p>
+  } @else if (places().length) {
+    <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 list-none p-0">
+      @for (place of places(); track place.fsq_place_id) {
+        <li>
+          <app-place-card
+            [place]="place"
+            [returnUrl]="currentUrl()"
+            [scrollY]="0"
+          />
+        </li>
+      }
+    </ul>
+  } @else {
+    <p class="text-gray-400">Enter a keyword or location to search for places.</p>
+  }
+</section>

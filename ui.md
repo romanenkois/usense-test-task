@@ -27,7 +27,11 @@ Persistent top navbar: **Logo** | **Search** | **Wishlist** (badge with saved co
 
 ## Place Details Page (`/places/:id`)
 
-- Back button, hero photo carousel
+- **Back button** — navigates to `/search` preserving the exact query params (keyword, location, all active filters) the user had when they opened this page, AND restores the scroll position to the card the user clicked. Implementation notes:
+  - Store the current search URL (path + query string) and the clicked card's scroll offset in the navigation `state` (`router.navigate(['/places', id], { state: { returnUrl, scrollY } })`) when leaving the search page.
+  - On the Back button click, read `history.state.returnUrl` and `history.state.scrollY`, navigate to `returnUrl`, then call `window.scrollTo({ top: scrollY, behavior: 'instant' })` after the navigation settles.
+  - If `history.state` is absent (e.g. user landed on the details page directly or from wishlist), fall back to navigating to `/search` without scroll restoration.
+- Hero photo carousel
 - Name, category, address, hours (open/closed), rating, price level
 - Add / Remove from Wishlist button
 - Photos grid
@@ -62,7 +66,7 @@ Persistent top navbar: **Logo** | **Search** | **Wishlist** (badge with saved co
 
 ---
 
-## Open Questions
+## Decisions
 
-1. Should search trigger on **button click only** or also **on input debounce** (auto-search as you type)?
-2. On the wishlist card — does clicking the card body navigate to `/places/:id`, or is it view-only with just a remove button?
+1. Search triggers on **400 ms debounce** as the user types — no explicit button.
+2. Wishlist card body **navigates to `/places/:id`**; there is also a separate remove button.

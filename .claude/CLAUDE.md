@@ -63,6 +63,7 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 - **Mapper functions**: `mapFsq*To*` — e.g. `mapFsqPlaceToPlace`
 - **Services**: `*.service.ts`
 - **Interceptors**: `*.interceptor.ts`
+- **Private fields and methods**: prefix with `_` — e.g. `_cache`, `_load()`, `_isFresh()`
 
 ## Barrel Files (`index.ts`)
 

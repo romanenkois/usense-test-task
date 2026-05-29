@@ -31,27 +31,27 @@ import { environment } from '@env';
 
 @Injectable({ providedIn: 'root' })
 export class FsqService {
-  private readonly api = inject(FsqApiService);
-  private readonly cache = new Map<string, WritableSignal<ItemState<unknown>>>();
+  private readonly _api = inject(FsqApiService);
+  private readonly _cache = new Map<string, WritableSignal<ItemState<unknown>>>();
 
-  private getSignal<T>(key: string): WritableSignal<ItemState<T>> {
-    if (!this.cache.has(key)) {
-      this.cache.set(
+  private _getSignal<T>(key: string): WritableSignal<ItemState<T>> {
+    if (!this._cache.has(key)) {
+      this._cache.set(
         key,
         signal<ItemState<unknown>>({ data: null, status: { status: Status.Idle }, addedAt: null }),
       );
     }
-    return this.cache.get(key)! as WritableSignal<ItemState<T>>;
+    return this._cache.get(key)! as WritableSignal<ItemState<T>>;
   }
 
-  private isFresh(addedAt: Date | null): boolean {
+  private _isFresh(addedAt: Date | null): boolean {
     return addedAt !== null && Date.now() - addedAt.getTime() < environment.cacheTtlMs;
   }
 
-  private load<T>(key: string, fetch: () => Observable<T>): Signal<ItemState<T>> {
-    const sig = this.getSignal<T>(key);
+  private _load<T>(key: string, fetch: () => Observable<T>): Signal<ItemState<T>> {
+    const sig = this._getSignal<T>(key);
 
-    if (this.isFresh(sig().addedAt) && sig().data !== null) {
+    if (this._isFresh(sig().addedAt) && sig().data !== null) {
       return sig;
     }
 
@@ -76,8 +76,8 @@ export class FsqService {
 
   searchPlaces(params: PlaceSearchParams): Signal<ItemState<PlaceSearchResponse>> {
     const key = `search:${buildCacheKey(params)}`;
-    return this.load(key, () =>
-      this.api
+    return this._load(key, () =>
+      this._api
         .get<FsqPlaceSearchResponseIncomingDTO>('/search', toQueryParams(params))
         .pipe(map(mapFsqPlaceSearchResponseToPlaceSearchResponse)),
     );
@@ -85,8 +85,8 @@ export class FsqService {
 
   getPlaceDetails(fsqPlaceId: string, fields?: string): Signal<ItemState<Place>> {
     const key = `place:${fsqPlaceId}${fields ? `:${fields}` : ''}`;
-    return this.load(key, () =>
-      this.api
+    return this._load(key, () =>
+      this._api
         .get<FsqPlaceIncomingDTO>(`/${fsqPlaceId}`, fields ? { fields } : undefined)
         .pipe(map(mapFsqPlaceToPlace)),
     );
@@ -94,8 +94,8 @@ export class FsqService {
 
   getPlacePhotos(fsqPlaceId: string, params?: PlacePhotosParams): Signal<ItemState<PlacePhoto[]>> {
     const key = `photos:${fsqPlaceId}${params ? `:${buildCacheKey(params)}` : ''}`;
-    return this.load(key, () =>
-      this.api
+    return this._load(key, () =>
+      this._api
         .get<FsqPhotoIncomingDTO[]>(
           `/${fsqPlaceId}/photos`,
           params ? toQueryParams(params) : undefined,
@@ -106,8 +106,8 @@ export class FsqService {
 
   getPlaceTips(fsqPlaceId: string, params?: PlaceTipsParams): Signal<ItemState<PlaceTip[]>> {
     const key = `tips:${fsqPlaceId}${params ? `:${buildCacheKey(params)}` : ''}`;
-    return this.load(key, () =>
-      this.api
+    return this._load(key, () =>
+      this._api
         .get<FsqTipIncomingDTO[]>(
           `/${fsqPlaceId}/tips`,
           params ? toQueryParams(params) : undefined,
