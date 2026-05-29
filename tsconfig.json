@@ -10,7 +10,8 @@
       "@services": ["src/app/core/services"],
       "@mappers": ["src/app/shared/mappers"],
       "@models": ["src/app/shared/models"],
-      "@env": ["src/environments/environment"]
+      "@env": ["src/environments/environment"],
+      "@utils": ["src/app/shared/utils"]
     },
     "strict": true,
     "noImplicitOverride": true,
